@@ -5,6 +5,29 @@ import { useEffect, useState } from 'react';
 import { getAllLeadershipMembers } from '@/lib/db';
 import Link from 'next/link';
 
+const designationHierarchy: Record<string, number> = {
+  'chief advisor': 100,
+  'chief-advisor': 100,
+  'senior advisor': 90,
+  'advisor': 80,
+  'adviser': 80,
+  'faculty advisor': 70,
+  'mentor': 60,
+  'board member': 50,
+  'member': 10,
+};
+
+function getDesignationRank(designation: string) {
+  if (!designation) return 0;
+  const lower = designation.toLowerCase().trim();
+  for (const [key, rank] of Object.entries(designationHierarchy)) {
+    if (lower.includes(key)) {
+      return rank;
+    }
+  }
+  return 0;
+}
+
 export default function AdvisoryPage() {
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -12,7 +35,15 @@ export default function AdvisoryPage() {
   useEffect(() => {
     async function load() {
       const data = await getAllLeadershipMembers('advisory');
-      setMembers(data);
+      const sortedData = data.sort((a, b) => {
+        const rankA = getDesignationRank(a.designation);
+        const rankB = getDesignationRank(b.designation);
+        if (rankA !== rankB) {
+          return rankB - rankA;
+        }
+        return (a.name || '').localeCompare(b.name || '');
+      });
+      setMembers(sortedData);
       setLoading(false);
     }
     load();

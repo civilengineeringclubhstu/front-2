@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getFirestore, Firestore } from 'firebase/firestore';
+import { getFirestore, initializeFirestore, Firestore } from 'firebase/firestore';
 import { getAuth, Auth } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -17,7 +17,7 @@ let auth: Auth | undefined;
 
 if (firebaseConfig.apiKey && firebaseConfig.projectId) {
   app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-  db = getFirestore(app);
+  db = initializeFirestore(app, { experimentalForceLongPolling: true });
   auth = getAuth(app);
 } else {
   console.warn("Firebase configuration is incomplete. Please ensure you have added your Firebase environment variables via the AI Studio Settings menu.");

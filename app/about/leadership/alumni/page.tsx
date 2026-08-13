@@ -18,6 +18,26 @@ export default function AlumniPage() {
     load();
   }, []);
 
+  // Group members by batch
+  const groupedAlumni = members.reduce((acc, member) => {
+    const batch = member.batch || 'Unknown Batch';
+    if (!acc[batch]) acc[batch] = [];
+    acc[batch].push(member);
+    return acc;
+  }, {} as Record<string, any[]>);
+
+  // Sort batches (latest first)
+  const sortedBatches = Object.keys(groupedAlumni).sort((a, b) => {
+    const numA = parseInt(a);
+    const numB = parseInt(b);
+    if (!isNaN(numA) && !isNaN(numB)) {
+      return numB - numA;
+    }
+    if (!isNaN(numA)) return -1;
+    if (!isNaN(numB)) return 1;
+    return b.localeCompare(a); // Fallback to descending alphabetical
+  });
+
   return (
     <div className="container mx-auto px-6 max-w-7xl pb-24">
       <PageHeader 
@@ -38,22 +58,31 @@ export default function AlumniPage() {
         ))}
       </div>
       
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8" style={{ perspective: 1000 }}>
-        {loading && <div className="col-span-full text-center py-10">Loading members...</div>}
-        {!loading && members.length === 0 && <div className="col-span-full text-center py-10 text-primary-light/60 dark:text-primary/60">No members found in this category.</div>}
-        
-        {members.map((member, idx) => (
-          <MemberCard 
-            key={member.id || idx}
-            index={idx}
-            name={member.name}
-            designation={member.designation}
-            batch={member.batch}
-            photoUrl={member.photoUrl || `https://picsum.photos/seed/p${idx}/400/400`}
-            facebookUrl={member.facebookUrl || "#"}
-            linkedinUrl={member.linkedinUrl || "#"}
-            email={member.email || ""}
-          />
+      {loading && <div className="text-center py-10">Loading members...</div>}
+      {!loading && sortedBatches.length === 0 && <div className="text-center py-10 text-primary-light/60 dark:text-primary/60">No members found in this category.</div>}
+      
+      <div className="flex flex-col gap-16">
+        {!loading && sortedBatches.map(batch => (
+          <div key={batch} className="flex flex-col gap-6">
+            <h3 className="text-2xl font-bold border-b border-black/10 dark:border-white/10 pb-2">
+              Batch {batch !== 'Unknown Batch' ? batch : ''}
+            </h3>
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8" style={{ perspective: 1000 }}>
+              {groupedAlumni[batch].map((member: any, idx: number) => (
+                <MemberCard 
+                  key={member.id || idx}
+                  index={idx}
+                  name={member.name}
+                  designation={member.designation}
+                  batch={member.batch}
+                  photoUrl={member.photoUrl || `https://picsum.photos/seed/p${idx}/400/400`}
+                  facebookUrl={member.facebookUrl || "#"}
+                  linkedinUrl={member.linkedinUrl || "#"}
+                  email={member.email || ""}
+                />
+              ))}
+            </div>
+          </div>
         ))}
       </div>
     </div>

@@ -5,6 +5,39 @@ import { useEffect, useState } from 'react';
 import { getAllLeadershipMembers } from '@/lib/db';
 import Link from 'next/link';
 
+const designationHierarchy: Record<string, number> = {
+  'president': 100,
+  'vice president': 90,
+  'vice-president': 90,
+  'general secretary': 80,
+  'joint secretary': 70,
+  'joint general secretary': 70,
+  'assistant general secretary': 65,
+  'treasurer': 60,
+  'organizing secretary': 50,
+  'joint organizing secretary': 45,
+  'office secretary': 40,
+  'press': 35,
+  'media': 35,
+  'publication': 30,
+  'it secretary': 25,
+  'sports': 20,
+  'cultural': 15,
+  'executive member': 10,
+  'member': 5,
+};
+
+function getDesignationRank(designation: string) {
+  if (!designation) return 0;
+  const lower = designation.toLowerCase().trim();
+  for (const [key, rank] of Object.entries(designationHierarchy)) {
+    if (lower.includes(key)) {
+      return rank;
+    }
+  }
+  return 0;
+}
+
 export default function ExecutivePage() {
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -12,7 +45,15 @@ export default function ExecutivePage() {
   useEffect(() => {
     async function load() {
       const data = await getAllLeadershipMembers('executive');
-      setMembers(data);
+      const sortedData = data.sort((a, b) => {
+        const rankA = getDesignationRank(a.designation);
+        const rankB = getDesignationRank(b.designation);
+        if (rankA !== rankB) {
+          return rankB - rankA;
+        }
+        return (a.name || '').localeCompare(b.name || '');
+      });
+      setMembers(sortedData);
       setLoading(false);
     }
     load();
