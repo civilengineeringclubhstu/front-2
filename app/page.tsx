@@ -55,7 +55,7 @@ function TypewriterHeading() {
   const showLine2 = text.length >= 15;
 
   return (
-    <div className="text-5xl md:text-7xl lg:text-[80px] leading-[1.05] tracking-tight min-h-[120px] md:min-h-[160px] lg:min-h-[220px] font-bold">
+    <div className="text-5xl md:text-7xl lg:text-[80px] leading-[1.05] tracking-tight min-h-[120px] md:min-h-[160px] lg:min-h-[220px] font-bold -mt-8 md:-mt-16">
       {text.slice(0, 7)}
       {showDreams && <br />}
       {showDreams && (
