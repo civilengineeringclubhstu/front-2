@@ -307,15 +307,19 @@ export default function Home() {
                       <MapPin className="w-3 h-3" /> {item.loc}
                     </p>
                   </div>
-                  <a 
-                    href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item.title)}&dates=${item.start}/${item.end}&details=Join+us+for+${encodeURIComponent(item.title)}&location=${encodeURIComponent(item.loc)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="shrink-0 flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-full glass border-info-light/20 text-info-light hover:bg-info-light hover:text-white transition-all z-10 cursor-pointer"
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item.title)}&dates=${item.start}/${item.end}&details=Join+us+for+${encodeURIComponent(item.title)}&location=${encodeURIComponent(item.loc)}`;
+                      window.open(url, '_blank', 'noopener,noreferrer');
+                    }}
+                    title="Add to Google Calendar"
+                    className="shrink-0 flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-full glass border-info-light/20 text-info-light hover:bg-info-light hover:text-white transition-all z-[20] cursor-pointer"
                   >
                     <CalendarPlus className="w-4 h-4" />
                     <span className="hidden sm:inline">Add to Calendar</span>
-                  </a>
+                  </button>
                 </motion.div>
               ))}
             </div>

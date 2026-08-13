@@ -6,8 +6,8 @@ import { motion } from 'motion/react';
 import { MapPin, Calendar, Clock, Ticket } from 'lucide-react';
 
 const UPCOMING = [
-  { id: 1, title: 'Annual Tech Symposium 2026', date: 'November 14, 2026', time: '09:00 AM', location: 'Main Auditorium', desc: 'Join us for our biggest event of the year featuring keynote speakers from top tech companies, interactive workshops, and a massive networking session.', image: 'https://picsum.photos/seed/u1/800/450' },
-  { id: 2, title: 'Winter Code Camp', date: 'December 20, 2026', time: '10:00 AM', location: 'Computer Lab 3', desc: 'A week-long intensive coding bootcamp designed to take your web development skills to the next level.', image: 'https://picsum.photos/seed/u2/800/450' },
+  { id: 1, title: 'Annual Tech Symposium 2026', date: 'November 14, 2026', time: '09:00 AM', location: 'Main Auditorium', desc: 'Join us for our biggest event of the year featuring keynote speakers from top tech companies, interactive workshops, and a massive networking session.', image: 'https://picsum.photos/seed/u1/800/450', start: '20261114T090000Z', end: '20261114T170000Z' },
+  { id: 2, title: 'Winter Code Camp', date: 'December 20, 2026', time: '10:00 AM', location: 'Computer Lab 3', desc: 'A week-long intensive coding bootcamp designed to take your web development skills to the next level.', image: 'https://picsum.photos/seed/u2/800/450', start: '20261220T100000Z', end: '20261220T170000Z' },
 ];
 
 export default function UpcomingPage() {
@@ -56,7 +56,16 @@ export default function UpcomingPage() {
                 <button className="btn-primary">
                   <Ticket className="w-5 h-5 mr-2" /> Register Now
                 </button>
-                <button className="btn-secondary">
+                <button 
+                  className="btn-secondary"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${event.start}/${event.end}&details=${encodeURIComponent(event.desc)}&location=${encodeURIComponent(event.location)}`;
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                  }}
+                  title="Add to Google Calendar"
+                >
                   Add to Calendar
                 </button>
               </div>
