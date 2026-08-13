@@ -55,20 +55,18 @@ export default function BlogPostPage() {
 
       <h1 className="text-4xl md:text-5xl font-bold mb-8 leading-tight">{post.title}</h1>
 
-      {post.coverImageUrl && (
-        <div className="relative w-full aspect-video rounded-3xl overflow-hidden mb-12 shadow-2xl">
-          <Image
-            src={post.coverImageUrl}
-            alt={post.title}
-            fill
-            className="object-cover"
-            referrerPolicy="no-referrer"
-          />
-        </div>
-      )}
+            <div className="relative w-full aspect-video rounded-3xl overflow-hidden mb-12 shadow-2xl">
+        <Image
+          src={post.imageUrl || post.coverImageUrl || `https://picsum.photos/seed/${post.id}/1200/600`}
+          alt={post.title}
+          fill
+          className="object-cover"
+          referrerPolicy="no-referrer"
+        />
+      </div>
 
-      <div className="markdown-body prose prose-lg dark:prose-invert max-w-none">
-        <Markdown>{post.contentMarkdown || ''}</Markdown>
+      <div className="markdown-body prose prose-lg dark:prose-invert max-w-none prose-a:text-info-light">
+        <Markdown>{post.contentMarkdown || post.description || post.content || ''}</Markdown>
       </div>
     </div>
   );

@@ -30,10 +30,11 @@ export default function BlogPage() {
           <div className="col-span-full text-center p-8">No blogs available yet.</div>
         )}
         {blogs.map((post, idx) => {
-          const img = post.coverImageUrl || `https://picsum.photos/seed/b${idx}/800/500`;
+          const img = post.imageUrl || post.coverImageUrl || `https://picsum.photos/seed/b${idx}/800/500`;
           const title = post.title;
           const date = post.createdAt ? new Date(post.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown Date';
-          const excerpt = post.contentMarkdown ? post.contentMarkdown.replace(/<[^>]+>/g, '').substring(0, 150) + '...' : '';
+          const excerptSource = post.contentMarkdown || post.description || post.content || '';
+          const excerpt = excerptSource ? excerptSource.replace(/<[^>]+>/g, '').substring(0, 150) + '...' : '';
 
           return (
           <motion.article

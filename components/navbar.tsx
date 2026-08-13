@@ -13,7 +13,15 @@ const navLinks = [
   {
     label: 'About',
     children: [
-      { href: '/about/leadership', label: 'Leadership' },
+      { 
+        label: 'Leadership',
+        subChildren: [
+          { href: '/about/leadership/executive', label: 'Executive' },
+          { href: '/about/leadership/alumni', label: 'Alumni' },
+          { href: '/about/leadership/advisory', label: 'Advisory' },
+          { href: '/about/leadership/taskforce', label: 'Taskforce' },
+        ]
+      },
       { href: '/about/constitution', label: 'Constitution' },
       { href: '/about/history', label: 'History' },
     ],
@@ -111,18 +119,46 @@ export function Navbar() {
               {link.children && (
                 <div className="absolute top-full left-0 pt-4 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300">
                   <div className="bg-white/95 dark:bg-[#141923]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-xl rounded-2xl rounded-tr-none rounded-tl-none p-2 min-w-[200px] flex flex-col gap-1">
-                    {link.children.map((child, cIdx) => (
-                      <Link
-                        key={cIdx}
-                        href={child.href}
-                        className={cn(
-                          'px-4 py-2 rounded-xl text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/10',
-                          pathname === child.href ? 'bg-black/5 text-info-light' : ''
-                        )}
-                      >
-                        {child.label}
-                      </Link>
-                    ))}
+                    {link.children.map((child: any, cIdx) => {
+                      if (child.subChildren) {
+                        return (
+                          <div key={cIdx} className="relative group/sub">
+                            <button className="w-full text-left px-4 py-2 rounded-xl text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-between">
+                              {child.label}
+                              <ChevronDown className="w-3 h-3 -rotate-90" />
+                            </button>
+                            <div className="absolute top-0 left-full pl-2 opacity-0 -translate-x-2 pointer-events-none group-hover/sub:opacity-100 group-hover/sub:translate-x-0 group-hover/sub:pointer-events-auto transition-all duration-300">
+                              <div className="bg-white/95 dark:bg-[#141923]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-xl rounded-2xl p-2 min-w-[180px] flex flex-col gap-1">
+                                {child.subChildren.map((sub: any, sIdx: number) => (
+                                  <Link
+                                    key={sIdx}
+                                    href={sub.href}
+                                    className={cn(
+                                      'px-4 py-2 rounded-xl text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/10',
+                                      pathname === sub.href ? 'bg-black/5 text-info-light' : ''
+                                    )}
+                                  >
+                                    {sub.label}
+                                  </Link>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+                      return (
+                        <Link
+                          key={cIdx}
+                          href={child.href}
+                          className={cn(
+                            'px-4 py-2 rounded-xl text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/10',
+                            pathname === child.href ? 'bg-black/5 text-info-light' : ''
+                          )}
+                        >
+                          {child.label}
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -168,16 +204,37 @@ export function Navbar() {
                     <>
                       <div className="font-bold text-lg text-primary-light/50">{link.label}</div>
                       <div className="flex flex-col gap-2 pl-4 border-l-2 border-black/10 dark:border-white/10">
-                        {link.children?.map((child, cIdx) => (
-                          <Link
-                            key={cIdx}
-                            href={child.href}
-                            onClick={() => setMobileMenuOpen(false)}
-                            className="text-base py-1 text-primary-light/80 dark:text-primary/80"
-                          >
-                            {child.label}
-                          </Link>
-                        ))}
+                        {link.children?.map((child: any, cIdx) => {
+                          if (child.subChildren) {
+                            return (
+                              <div key={cIdx} className="flex flex-col gap-1 py-1">
+                                <div className="text-base font-semibold text-primary-light/80 dark:text-primary/80">{child.label}</div>
+                                <div className="flex flex-col gap-1 pl-3 border-l border-black/5 dark:border-white/5">
+                                  {child.subChildren.map((sub: any, sIdx: number) => (
+                                    <Link
+                                      key={sIdx}
+                                      href={sub.href}
+                                      onClick={() => setMobileMenuOpen(false)}
+                                      className="text-sm py-1 text-primary-light/60 dark:text-primary/60"
+                                    >
+                                      {sub.label}
+                                    </Link>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          }
+                          return (
+                            <Link
+                              key={cIdx}
+                              href={child.href}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="text-base py-1 text-primary-light/80 dark:text-primary/80"
+                            >
+                              {child.label}
+                            </Link>
+                          );
+                        })}
                       </div>
                     </>
                   )}
