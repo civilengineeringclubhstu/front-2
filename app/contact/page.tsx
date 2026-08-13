@@ -91,10 +91,25 @@ export default function ContactPage() {
               <div className="w-20 h-20 bg-success/10 text-success rounded-full flex items-center justify-center mb-6">
                 <Send className="w-10 h-10" />
               </div>
-              <h3 className="text-3xl font-bold mb-4">Message Sent!</h3>
-              <p className="text-primary-light/70 dark:text-primary/70 max-w-md mx-auto">
-                Thank you for reaching out. We have received your message and will contact you shortly.
+              <h3 className="text-3xl font-bold mb-4">Redirecting to Gmail...</h3>
+              <p className="text-primary-light/70 dark:text-primary/70 max-w-md mx-auto mb-6">
+                We're opening your Gmail to send the message. If a popup blocker prevented it from opening, you can click the button below.
               </p>
+              <div className="flex flex-col sm:flex-row gap-4 items-center">
+                <button 
+                  onClick={() => {
+                    const bodyText = `Name: ${formData.firstName} ${formData.lastName}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`;
+                    const mailToLink = `https://mail.google.com/mail/?view=cm&fs=1&to=contact@clubplatform.edu&su=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(bodyText)}`;
+                    window.open(mailToLink, '_blank');
+                  }}
+                  className="btn-primary"
+                >
+                  Open Gmail Manually
+                </button>
+                <button onClick={() => setSubmitted(false)} className="btn-secondary">
+                  Send Another
+                </button>
+              </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="glass p-8 md:p-12 rounded-[36px] flex flex-col gap-6">

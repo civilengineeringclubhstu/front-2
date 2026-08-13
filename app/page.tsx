@@ -301,7 +301,7 @@ export default function Home() {
                     <span className="text-xs font-bold uppercase">{item.month}</span>
                     <span className="text-xl font-numbers font-bold leading-none">{item.day}</span>
                   </div>
-                  <div className="flex flex-col justify-center flex-grow pr-10">
+                  <div className="flex flex-col justify-center flex-grow">
                     <h4 className="font-bold text-base group-hover:text-info-light transition-colors line-clamp-1">{item.title}</h4>
                     <p className="text-sm text-primary-light/60 dark:text-primary/60 flex items-center gap-1 mt-1">
                       <MapPin className="w-3 h-3" /> {item.loc}
@@ -311,10 +311,10 @@ export default function Home() {
                     href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item.title)}&dates=${item.start}/${item.end}&details=Join+us+for+${encodeURIComponent(item.title)}&location=${encodeURIComponent(item.loc)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    title="Add to Google Calendar"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full glass flex items-center justify-center text-primary-light/50 dark:text-primary/50 hover:text-info-light hover:scale-110 transition-all z-10"
+                    className="shrink-0 flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-full glass border-info-light/20 text-info-light hover:bg-info-light hover:text-white transition-all z-10"
                   >
-                    <CalendarPlus className="w-5 h-5" />
+                    <CalendarPlus className="w-4 h-4" />
+                    <span className="hidden sm:inline">Add to Calendar</span>
                   </a>
                 </motion.div>
               ))}
