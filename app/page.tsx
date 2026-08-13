@@ -307,25 +307,15 @@ export default function Home() {
                       <MapPin className="w-3 h-3" /> {item.loc}
                     </p>
                   </div>
-                  <button 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      const icsData = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//ClubPlatform//EN\nBEGIN:VEVENT\nDTSTART:${item.start}\nDTEND:${item.end}\nSUMMARY:${item.title}\nLOCATION:${item.loc}\nDESCRIPTION:Join us for ${item.title}\nEND:VEVENT\nEND:VCALENDAR`;
-                      const blob = new Blob([icsData], { type: 'text/calendar;charset=utf-8' });
-                      const url = window.URL.createObjectURL(blob);
-                      const link = document.createElement('a');
-                      link.href = url;
-                      link.setAttribute('download', `${item.title.replace(/\s+/g, '_')}.ics`);
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                      window.URL.revokeObjectURL(url);
-                    }}
+                  <a 
+                    href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item.title)}&dates=${item.start}/${item.end}&details=Join+us+for+${encodeURIComponent(item.title)}&location=${encodeURIComponent(item.loc)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="shrink-0 flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-full glass border-info-light/20 text-info-light hover:bg-info-light hover:text-white transition-all z-10 cursor-pointer"
                   >
                     <CalendarPlus className="w-4 h-4" />
                     <span className="hidden sm:inline">Add to Calendar</span>
-                  </button>
+                  </a>
                 </motion.div>
               ))}
             </div>
