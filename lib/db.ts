@@ -46,7 +46,7 @@ export async function getAllLeadershipMembers(category?: string) {
     // Let's filter in memory for now to avoid requiring composite indexes on firestore.
     const snap = await getDocs(query(collection(db, "leadership_members"), orderBy("createdAt", "desc")));
     let docs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
-    return docs.filter(d => d.category && d.category.toLowerCase() === category.toLowerCase());
+    return docs.filter(d => d.type && d.type.toLowerCase() === category.toLowerCase());
   } else {
     q = query(collection(db, "leadership_members"), orderBy("createdAt", "desc"));
     const snap = await getDocs(q);
