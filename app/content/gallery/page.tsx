@@ -1,97 +1,39 @@
 'use client';
-
-import { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/page-header';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'motion/react';
-import { Play, X, ChevronLeft, ChevronRight } from 'lucide-react';
-
-const GALLERY_ITEMS = [
-  { 
-    id: 1, 
-    title: 'Annual Tech Symposium', 
-    items: [
-      { type: 'image', url: 'https://picsum.photos/seed/g1_1/800/800' },
-      { type: 'image', url: 'https://picsum.photos/seed/g1_2/800/800' },
-      { type: 'video', url: 'https://picsum.photos/seed/g1_3/800/800' }
-    ]
-  },
-  { 
-    id: 2, 
-    title: 'Hackathon 2025 Highlights', 
-    items: [
-      { type: 'video', url: 'https://picsum.photos/seed/g2_1/800/800' },
-      { type: 'image', url: 'https://picsum.photos/seed/g2_2/800/800' }
-    ]
-  },
-  { 
-    id: 3, 
-    title: 'Leadership Workshop', 
-    items: [
-      { type: 'image', url: 'https://picsum.photos/seed/g3_1/800/800' },
-      { type: 'image', url: 'https://picsum.photos/seed/g3_2/800/800' },
-      { type: 'image', url: 'https://picsum.photos/seed/g3_3/800/800' },
-      { type: 'image', url: 'https://picsum.photos/seed/g3_4/800/800' }
-    ]
-  },
-  { 
-    id: 4, 
-    title: 'Community Outreach', 
-    items: [
-      { type: 'image', url: 'https://picsum.photos/seed/g4_1/800/800' },
-      { type: 'image', url: 'https://picsum.photos/seed/g4_2/800/800' }
-    ]
-  },
-  { 
-    id: 5, 
-    title: 'Alumni Meetup', 
-    items: [
-      { type: 'video', url: 'https://picsum.photos/seed/g5_1/800/800' }
-    ]
-  },
-  { 
-    id: 6, 
-    title: 'Farewell Gala', 
-    items: [
-      { type: 'image', url: 'https://picsum.photos/seed/g6_1/800/800' },
-      { type: 'image', url: 'https://picsum.photos/seed/g6_2/800/800' },
-      { type: 'video', url: 'https://picsum.photos/seed/g6_3/800/800' }
-    ]
-  },
-];
+import { Play, X, ChevronLeft, ChevronRight, Image as ImageIcon, Video, Youtube } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { getGalleries } from '@/lib/db';
 
 export default function GalleryPage() {
+  const [galleries, setGalleries] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCardIdx, setSelectedCardIdx] = useState<number | null>(null);
-  const [innerItemIdx, setInnerItemIdx] = useState<number>(0);
+  const [innerItemIdx, setInnerItemIdx] = useState(0);
 
-  // Handle keyboard navigation
   useEffect(() => {
-    if (selectedCardIdx === null) return;
-    
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') {
-        setSelectedCardIdx((prev) => prev === GALLERY_ITEMS.length - 1 ? 0 : prev! + 1);
-        setInnerItemIdx(0);
-      } else if (e.key === 'ArrowLeft') {
-        setSelectedCardIdx((prev) => prev === 0 ? GALLERY_ITEMS.length - 1 : prev! - 1);
-        setInnerItemIdx(0);
-      } else if (e.key === 'Escape') {
-        setSelectedCardIdx(null);
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedCardIdx]);
+    async function load() {
+      const data = await getGalleries();
+      setGalleries(data);
+      setLoading(false);
+    }
+    load();
+  }, []);
 
   return (
     <div className="container mx-auto px-6 max-w-7xl pb-24">
-      <PageHeader title="Gallery" description="Capturing moments, memories, and milestones." />
+      <PageHeader title="Gallery" description="Moments, events, and memories captured by our community." />
       
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {GALLERY_ITEMS.map((card, idx) => (
+      {loading && <div className="text-center py-10">Loading gallery...</div>}
+      {!loading && galleries.length === 0 && <div className="text-center py-10">No galleries found.</div>}
+
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {galleries.map((card, idx) => {
+          if (!card.items || card.items.length === 0) return null;
+          return (
           <motion.div
-            key={card.id}
+            key={card.id || idx}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: idx * 0.1 }}
@@ -103,7 +45,7 @@ export default function GalleryPage() {
           >
             <Image
               src={card.items[0].url}
-              alt={card.title}
+              alt={card.title || "Gallery"}
               fill
               className="object-cover transition-transform duration-700 group-hover:scale-110"
               referrerPolicy="no-referrer"
@@ -127,11 +69,12 @@ export default function GalleryPage() {
               <h3 className="text-white font-bold text-lg">{card.title}</h3>
             </div>
           </motion.div>
-        ))}
+          );
+        })}
       </div>
 
       <AnimatePresence>
-        {selectedCardIdx !== null && (
+        {selectedCardIdx !== null && galleries[selectedCardIdx] && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -139,7 +82,6 @@ export default function GalleryPage() {
             className="fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center backdrop-blur-xl"
             onClick={() => setSelectedCardIdx(null)}
           >
-            {/* Close Button */}
             <button 
               onClick={() => setSelectedCardIdx(null)} 
               className="absolute top-6 right-6 text-white/70 hover:text-white p-2 z-[110]"
@@ -147,11 +89,10 @@ export default function GalleryPage() {
               <X className="w-10 h-10" />
             </button>
             
-            {/* Main Outer Navigation (Between Cards) */}
             <button 
               onClick={(e) => { 
                 e.stopPropagation(); 
-                setSelectedCardIdx(selectedCardIdx === 0 ? GALLERY_ITEMS.length - 1 : selectedCardIdx - 1);
+                setSelectedCardIdx(selectedCardIdx === 0 ? galleries.length - 1 : selectedCardIdx - 1);
                 setInnerItemIdx(0);
               }}
               className="absolute left-2 md:left-6 text-white/50 hover:text-white p-4 z-[110] transition-colors"
@@ -159,11 +100,10 @@ export default function GalleryPage() {
             >
               <ChevronLeft className="w-12 h-12 md:w-16 md:h-16" />
             </button>
-
             <button 
               onClick={(e) => { 
                 e.stopPropagation(); 
-                setSelectedCardIdx(selectedCardIdx === GALLERY_ITEMS.length - 1 ? 0 : selectedCardIdx + 1);
+                setSelectedCardIdx(selectedCardIdx === galleries.length - 1 ? 0 : selectedCardIdx + 1);
                 setInnerItemIdx(0);
               }}
               className="absolute right-2 md:right-6 text-white/50 hover:text-white p-4 z-[110] transition-colors"
@@ -172,7 +112,6 @@ export default function GalleryPage() {
               <ChevronRight className="w-12 h-12 md:w-16 md:h-16" />
             </button>
 
-            {/* Inner Content Area */}
             <div className="relative w-full max-w-4xl h-[65vh] flex items-center justify-center flex-col">
               <motion.div 
                 key={`${selectedCardIdx}-${innerItemIdx}`}
@@ -182,29 +121,31 @@ export default function GalleryPage() {
                 className="relative w-full h-full flex flex-col items-center justify-center cursor-default bg-black/20 rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10"
                 onClick={(e) => e.stopPropagation()}
               >
-                <Image 
-                   src={GALLERY_ITEMS[selectedCardIdx].items[innerItemIdx].url}
-                   alt={`${GALLERY_ITEMS[selectedCardIdx].title} - Item ${innerItemIdx + 1}`}
+                {galleries[selectedCardIdx].items[innerItemIdx] && (
+                <>
+                <Image
+                   src={galleries[selectedCardIdx].items[innerItemIdx].url}
+                   alt={`${galleries[selectedCardIdx].title} - Item ${innerItemIdx + 1}`}
                    fill
                    className="object-contain"
                    referrerPolicy="no-referrer"
                 />
-                
-                {GALLERY_ITEMS[selectedCardIdx].items[innerItemIdx].type === 'video' && (
+                {galleries[selectedCardIdx].items[innerItemIdx].type === 'video' && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
                     <div className="w-24 h-24 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-2xl">
                       <Play className="w-10 h-10 text-white ml-2" fill="currentColor" />
                     </div>
                   </div>
                 )}
+                </>
+                )}
 
-                {/* Inner Navigation (Between items in a card) */}
-                {GALLERY_ITEMS[selectedCardIdx].items.length > 1 && (
+                {galleries[selectedCardIdx].items.length > 1 && (
                   <>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setInnerItemIdx((prev) => prev === 0 ? GALLERY_ITEMS[selectedCardIdx].items.length - 1 : prev - 1);
+                        setInnerItemIdx((prev) => prev === 0 ? galleries[selectedCardIdx].items.length - 1 : prev - 1);
                       }}
                       className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-all z-[120]"
                       title="Previous Image/Video"
@@ -214,7 +155,7 @@ export default function GalleryPage() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setInnerItemIdx((prev) => prev === GALLERY_ITEMS[selectedCardIdx].items.length - 1 ? 0 : prev + 1);
+                        setInnerItemIdx((prev) => prev === galleries[selectedCardIdx].items.length - 1 ? 0 : prev + 1);
                       }}
                       className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-all z-[120]"
                       title="Next Image/Video"
@@ -225,18 +166,16 @@ export default function GalleryPage() {
                 )}
               </motion.div>
               
-              {/* Card Title */}
-              <div className="mt-8 text-white font-medium text-xl bg-white/10 px-8 py-3 rounded-full backdrop-blur-md border border-white/10" onClick={(e) => e.stopPropagation()}>
-                 {GALLERY_ITEMS[selectedCardIdx].title}
+              <div className="mt-8 text-white font-medium text-xl bg-white/10 px-8 py-3 rounded-full backdrop-blur-md border border-white/10" onClick={(e) => e.stopPropagation()}> 
+                {galleries[selectedCardIdx].title}
               </div>
             </div>
 
-            {/* Bottom Overview Thumbnails (Pagination) */}
             <div 
               className="absolute bottom-6 flex items-center gap-3 z-[110]"
               onClick={(e) => e.stopPropagation()}
             >
-              {GALLERY_ITEMS[selectedCardIdx].items.map((item, i) => (
+              {galleries[selectedCardIdx].items.map((item: any, i: number) => (
                 <button
                   key={i}
                   onClick={() => setInnerItemIdx(i)}
@@ -257,7 +196,6 @@ export default function GalleryPage() {
                 </button>
               ))}
             </div>
-
           </motion.div>
         )}
       </AnimatePresence>

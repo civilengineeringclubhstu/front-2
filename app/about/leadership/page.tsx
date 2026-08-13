@@ -1,18 +1,22 @@
 'use client';
-
 import { PageHeader } from '@/components/page-header';
 import { MemberCard } from '@/components/member-card';
-
-const MOCK_LEADERSHIP = [
-  { name: 'Alice Walker', designation: 'President', photoUrl: 'https://picsum.photos/seed/p1/400/400', batch: '2022' },
-  { name: 'Bob Smith', designation: 'Vice President', photoUrl: 'https://picsum.photos/seed/p2/400/400', batch: '2022' },
-  { name: 'Charlie Davis', designation: 'General Secretary', photoUrl: 'https://picsum.photos/seed/p3/400/400', batch: '2023' },
-  { name: 'Diana Prince', designation: 'Treasurer', photoUrl: 'https://picsum.photos/seed/p4/400/400', batch: '2023' },
-  { name: 'Evan Wright', designation: 'Operations Lead', photoUrl: 'https://picsum.photos/seed/p5/400/400', batch: '2024' },
-  { name: 'Fiona Lee', designation: 'Event Coordinator', photoUrl: 'https://picsum.photos/seed/p6/400/400', batch: '2024' },
-];
+import { useEffect, useState } from 'react';
+import { getAllLeadershipMembers } from '@/lib/db';
 
 export default function LeadershipPage() {
+  const [members, setMembers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      const data = await getAllLeadershipMembers();
+      setMembers(data);
+      setLoading(false);
+    }
+    load();
+  }, []);
+
   return (
     <div className="container mx-auto px-6 max-w-7xl pb-24">
       <PageHeader 
@@ -21,17 +25,19 @@ export default function LeadershipPage() {
       />
       
       <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8" style={{ perspective: 1000 }}>
-        {MOCK_LEADERSHIP.map((member, idx) => (
+        {loading && <div className="col-span-full text-center py-10">Loading leadership members...</div>}
+        {!loading && members.length === 0 && <div className="col-span-full text-center py-10">No members found.</div>}
+        {members.map((member, idx) => (
           <MemberCard 
-            key={idx}
+            key={member.id || idx}
             index={idx}
             name={member.name}
             designation={member.designation}
             batch={member.batch}
-            photoUrl={member.photoUrl}
-            facebookUrl="#"
-            linkedinUrl="#"
-            email="contact@example.com"
+            photoUrl={member.photoUrl || `https://picsum.photos/seed/p${idx}/400/400`}
+            facebookUrl={member.facebookUrl || "#"}
+            linkedinUrl={member.linkedinUrl || "#"}
+            email={member.email || ""}
           />
         ))}
       </div>

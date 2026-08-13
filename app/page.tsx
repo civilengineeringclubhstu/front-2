@@ -5,6 +5,7 @@ import { motion, useInView } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Calendar, Users, Award, BookOpen, MapPin, CalendarPlus } from 'lucide-react';
+import { getLatestBlogs, getUpcomingEvents } from '@/lib/db';
 
 function AnimatedCounter({ endValue, duration = 2000, suffix = "" }: { endValue: number, duration?: number, suffix?: string }) {
   const [count, setCount] = useState(0);
@@ -71,6 +72,18 @@ function TypewriterHeading() {
 }
 
 export default function Home() {
+  const [blogs, setBlogs] = useState<any[]>([]);
+  const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      const b = await getLatestBlogs(3);
+      const e = await getUpcomingEvents(3);
+      setBlogs(b);
+      setUpcomingEvents(e);
+    }
+    loadData();
+  }, []);
   return (
     <div className="flex flex-col gap-24 pb-12">
       {/* Hero Section */}
@@ -241,18 +254,18 @@ export default function Home() {
             </div>
             
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6" style={{ perspective: 1000 }}>
-              {[1, 2, 3].map((item) => (
+              {blogs.map((item, idx) => (
                 <motion.div 
-                  key={item}
+                  key={item.id || idx}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: item * 0.1 }}
+                  transition={{ delay: idx * 0.1 }}
                   className="glass-card group flex flex-col h-full overflow-hidden"
                 >
                   <div className="relative h-48 w-full overflow-hidden">
                     <Image 
-                      src={`https://picsum.photos/seed/blog${item}/600/400`}
+                      src={item.coverImageUrl || `https://picsum.photos/seed/blog${idx}/600/400`}
                       alt="Blog cover"
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -261,16 +274,23 @@ export default function Home() {
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
                   </div>
                   <div className="p-6 flex flex-col flex-grow">
-                    <div className="text-xs font-bold text-info-light mb-2">OCT 12, 2026</div>
+                    <div className="text-xs font-bold text-info-light mb-2">
+                      {item.createdAt ? new Date(item.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }).toUpperCase() : "OCT 12, 2026"}
+                    </div>
                     <h3 className="font-bold text-lg mb-3 line-clamp-2 group-hover:text-info-light transition-colors">
-                      Transforming the Future of Digital Leadership
+                      {item.title}
                     </h3>
                     <p className="text-primary-light/70 dark:text-primary/70 text-sm line-clamp-3 mb-4 flex-grow">
-                      Explore the nuances of modern leadership in an increasingly digital world, featuring insights from our alumni network.
+                      {item.contentMarkdown ? item.contentMarkdown.replace(/<[^>]+>/g, '').substring(0, 150) : "Explore the nuances of modern leadership..."}
                     </p>
                   </div>
                 </motion.div>
               ))}
+              {blogs.length === 0 && (
+                <div className="col-span-full py-8 text-center text-primary-light/50 dark:text-primary/50">
+                  No blogs available yet.
+                </div>
+              )}
             </div>
           </div>
 
@@ -284,11 +304,20 @@ export default function Home() {
             </div>
 
             <div className="glass rounded-[32px] p-2 flex flex-col gap-2">
-              {[
-                { title: 'Annual Tech Symposium 2026', month: 'Nov', day: '14', loc: 'Main Auditorium', start: '20261114T090000Z', end: '20261114T170000Z' },
-                { title: 'Leadership Workshop', month: 'Nov', day: '21', loc: 'Room 4B', start: '20261121T100000Z', end: '20261121T140000Z' },
-                { title: 'End of Year Gala', month: 'Dec', day: '10', loc: 'Grand Hall', start: '20261210T180000Z', end: '20261210T230000Z' }
-              ].map((item, idx) => (
+              {upcomingEvents.length === 0 && (
+                <div className="p-8 text-center text-primary-light/50 dark:text-primary/50">
+                  No upcoming events scheduled.
+                </div>
+              )}
+              {upcomingEvents.map((item, idx) => {
+                const eventDate = item.eventDate ? new Date(item.eventDate) : new Date();
+                const month = eventDate.toLocaleString('default', { month: 'short' });
+                const day = eventDate.getDate().toString();
+                // Simple start/end format for google calendar (very rudimentary)
+                const startStr = item.eventDate ? item.eventDate.replace(/-/g, '') + 'T' + (item.time ? item.time.replace(':', '') + '00Z' : '090000Z') : '20261114T090000Z';
+                const endStr = item.eventDate ? item.eventDate.replace(/-/g, '') + 'T' + '235900Z' : '20261114T170000Z';
+
+                return (
                 <motion.div 
                   key={idx}
                   initial={{ opacity: 0, x: 20 }}
@@ -298,20 +327,20 @@ export default function Home() {
                   className="flex gap-4 p-4 rounded-[24px] hover:bg-black/5 dark:hover:bg-white/5 transition-colors group relative"
                 >
                   <div className="w-16 h-16 shrink-0 rounded-2xl glass flex flex-col items-center justify-center border-info-light/20 text-info-light">
-                    <span className="text-xs font-bold uppercase">{item.month}</span>
-                    <span className="text-xl font-numbers font-bold leading-none">{item.day}</span>
+                    <span className="text-xs font-bold uppercase">{month}</span>
+                    <span className="text-xl font-numbers font-bold leading-none">{day}</span>
                   </div>
                   <div className="flex flex-col justify-center flex-grow">
                     <h4 className="font-bold text-base group-hover:text-info-light transition-colors line-clamp-1">{item.title}</h4>
                     <p className="text-sm text-primary-light/60 dark:text-primary/60 flex items-center gap-1 mt-1">
-                      <MapPin className="w-3 h-3" /> {item.loc}
+                      <MapPin className="w-3 h-3" /> {(item.location || "TBA")}
                     </p>
                   </div>
                   <button 
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item.title)}&dates=${item.start}/${item.end}&details=Join+us+for+${encodeURIComponent(item.title)}&location=${encodeURIComponent(item.loc)}`;
+                      const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item.title)}&dates=${startStr}/${endStr}&details=Join+us+for+${encodeURIComponent(item.title)}&location=${encodeURIComponent((item.location || "TBA"))}`;
                       window.open(url, '_blank', 'noopener,noreferrer');
                     }}
                     title="Add to Google Calendar"
@@ -321,7 +350,7 @@ export default function Home() {
                     <span className="hidden sm:inline">Add to Calendar</span>
                   </button>
                 </motion.div>
-              ))}
+              ); })}
             </div>
           </div>
         </div>

@@ -1,37 +1,32 @@
 'use client';
-
 import { PageHeader } from '@/components/page-header';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, CheckCircle2, XCircle, Award } from 'lucide-react';
 import { useState } from 'react';
-
-// Mock DB
-const CERTIFICATES: Record<string, any> = {
-  'CERT-2026-001': { name: 'Alice Walker', description: 'Web Development Bootcamp Completion', issueDate: 'Oct 15, 2026', score: 98 },
-  'CERT-2026-002': { name: 'Bob Smith', description: 'Leadership Workshop Attendance', issueDate: 'Sep 20, 2026' },
-};
+import { getCertificate } from '@/lib/db';
 
 export default function CertificateVerificationPage() {
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [result, setResult] = useState<any>(null);
 
-  const handleVerify = (e: React.FormEvent) => {
+  const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query) return;
     
     setStatus('loading');
-    
-    // Simulate API call
-    setTimeout(() => {
-      const data = CERTIFICATES[query.toUpperCase()];
+    try {
+      const data = await getCertificate(query.trim());
       if (data) {
         setResult(data);
         setStatus('success');
       } else {
         setStatus('error');
       }
-    }, 800);
+    } catch (error) {
+      console.error(error);
+      setStatus('error');
+    }
   };
 
   return (
@@ -45,7 +40,7 @@ export default function CertificateVerificationPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="e.g. CERT-2026-001"
-            className="input-glass pr-32 text-lg uppercase placeholder:normal-case placeholder:text-primary-light/40 dark:placeholder:text-primary/40"
+            className="input-glass pr-32 text-lg placeholder:text-primary-light/40 dark:placeholder:text-primary/40"
           />
           <button 
             type="submit" 
@@ -82,7 +77,7 @@ export default function CertificateVerificationPage() {
               </div>
               <div>
                 <h3 className="text-sm font-bold text-success uppercase tracking-widest">Verified Authentic</h3>
-                <p className="text-primary-light/60 dark:text-primary/60 text-sm">ID: {query.toUpperCase()}</p>
+                <p className="text-primary-light/60 dark:text-primary/60 text-sm">ID: {result.certificateId}</p>
               </div>
             </div>
             
@@ -94,10 +89,10 @@ export default function CertificateVerificationPage() {
                 <p className="text-sm font-bold text-secondary-light uppercase tracking-wide mb-1">Issue Date</p>
                 <p className="font-semibold text-lg">{result.issueDate}</p>
               </div>
-              {result.score && (
+              {result.score !== undefined && result.score !== null && (
                 <div>
                   <p className="text-sm font-bold text-secondary-light uppercase tracking-wide mb-1">Score</p>
-                  <p className="font-semibold text-lg font-numbers">{result.score}%</p>
+                  <p className="font-semibold text-lg font-numbers">{result.score}</p>
                 </div>
               )}
             </div>
@@ -115,7 +110,7 @@ export default function CertificateVerificationPage() {
             <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
             <h3 className="text-2xl font-bold mb-2 text-red-500">Record Not Found</h3>
             <p className="text-primary-light/70 dark:text-primary/70">
-              We couldn&apos;t find a certificate matching the ID &quot;{query.toUpperCase()}&quot;. Please check the ID and try again.
+              We couldn&apos;t find a certificate matching the ID &quot;{query}&quot;. Please check the ID and try again.
             </p>
           </motion.div>
         )}

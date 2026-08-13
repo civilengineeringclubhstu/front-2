@@ -1,62 +1,89 @@
 'use client';
-
 import { PageHeader } from '@/components/page-header';
 import Image from 'next/image';
 import { motion } from 'motion/react';
-import { MapPin, Calendar, ArrowRight } from 'lucide-react';
-
-const EVENTS = [
-  { id: 1, title: 'Annual Tech Symposium 2025', date: 'October 15, 2025', location: 'Main Auditorium', desc: 'A gathering of minds to discuss the future of technology and its impact on society.', image: 'https://picsum.photos/seed/e1/800/450', isUpcoming: false },
-  { id: 2, title: 'Leadership Retreat', date: 'August 10, 2025', location: 'Mountain Resort', desc: 'An intensive weekend focused on team building, strategy planning, and personal growth.', image: 'https://picsum.photos/seed/e2/800/450', isUpcoming: false },
-  { id: 3, title: 'Hackathon: Code for Good', date: 'June 5, 2025', location: 'Innovation Lab', desc: '48 hours of coding to solve real-world problems faced by local NGOs.', image: 'https://picsum.photos/seed/e3/800/450', isUpcoming: false },
-  { id: 4, title: 'Alumni Networking Dinner', date: 'April 20, 2025', location: 'Grand Hotel', desc: 'Connecting current members with our extensive alumni network across various industries.', image: 'https://picsum.photos/seed/e4/800/450', isUpcoming: false },
-];
+import { MapPin, Calendar, Clock, Ticket } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { getArchivedEvents } from '@/lib/db';
 
 export default function ArchivePage() {
+  const [events, setEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchEvents() {
+      const e = await getArchivedEvents(50);
+      setEvents(e);
+      setLoading(false);
+    }
+    fetchEvents();
+  }, []);
+
   return (
     <div className="container mx-auto px-6 max-w-7xl pb-24">
-      <PageHeader title="Event Archive" description="A look back at our past milestones and gatherings." />
+      <PageHeader title="Past Events" description="Explore the archives of our previous symposia, workshops, and galas." />
       
-      <div className="grid md:grid-cols-2 gap-8">
-        {EVENTS.map((event, idx) => (
+      <div className="flex flex-col gap-12">
+        {loading && <div className="text-center p-8">Loading past events...</div>}
+        {!loading && events.length === 0 && (
+          <div className="text-center p-8">No past events found in the archives.</div>
+        )}
+        {events.map((event, idx) => {
+          const title = event.title;
+          const loc = event.location || 'TBA';
+          const desc = event.descriptionMarkdown || '';
+          const img = event.coverImageUrl || 'https://picsum.photos/seed/ev/800/450';
+          const eventDate = event.eventDate ? new Date(event.eventDate) : new Date();
+          const dStr = eventDate.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+          const tStr = event.time || 'TBA';
+
+          return (
           <motion.div
-            key={event.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: idx * 0.1 }}
-            className="glass-card overflow-hidden group flex flex-col"
+            key={event.id || idx}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: idx * 0.1 }}
+            className="glass-card overflow-hidden group flex flex-col md:flex-row opacity-80 hover:opacity-100 transition-opacity"
           >
-            <div className="relative aspect-video w-full overflow-hidden">
+            <div className="relative md:w-2/5 aspect-video md:aspect-auto h-64 md:h-auto overflow-hidden shrink-0 filter grayscale group-hover:grayscale-0 transition-all duration-700">
               <Image
-                src={event.image}
-                alt={event.title}
+                src={img}
+                alt={title}
                 fill
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                className="object-cover group-hover:scale-105 transition-transform duration-700"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/20" />
             </div>
             
-            <div className="p-8 flex flex-col flex-grow">
-              <h3 className="text-2xl font-bold mb-3 group-hover:text-info-light transition-colors line-clamp-1">{event.title}</h3>
-              
-              <div className="flex flex-wrap gap-4 text-sm font-semibold text-secondary-light mb-4">
-                <div className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> {event.date}</div>
-                <div className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> {event.location}</div>
+            <div className="p-8 md:p-10 flex flex-col justify-center flex-grow">
+              <div className="flex flex-wrap gap-4 text-sm font-bold text-primary-light/60 dark:text-primary/60 mb-4">
+                <div className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> {dStr}</div>
+                <div className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> {tStr}</div>
               </div>
               
-              <p className="text-primary-light/70 dark:text-primary/70 mb-6 flex-grow">{event.desc}</p>
+              <h3 className="text-3xl font-bold mb-4">{title}</h3>
               
-              <button className="flex items-center font-bold text-sm text-info-light hover:underline">
-                View Event Details <ArrowRight className="w-4 h-4 ml-1" />
-              </button>
+              <div className="flex items-center gap-2 text-primary-light/60 dark:text-primary/60 font-semibold mb-6">
+                <MapPin className="w-5 h-5" /> {loc}
+              </div>
+              
+              <p className="text-primary-light/80 dark:text-primary/80 text-lg leading-relaxed mb-8">
+                {desc}
+              </p>
+              
+              {event.facebookUrl && (
+                <div className="mt-auto">
+                   <a href={event.facebookUrl} target="_blank" rel="noreferrer" className="btn-secondary inline-flex">
+                     View Event Gallery
+                   </a>
+                </div>
+              )}
             </div>
           </motion.div>
-        ))}
-      </div>
-      
-      <div className="mt-12 flex justify-center">
-        <button className="btn-secondary">Load More</button>
+          );
+        })}
       </div>
     </div>
   );
