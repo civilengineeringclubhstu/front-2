@@ -1,58 +1,149 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, X, Loader2 } from 'lucide-react';
-import { liteClient as algoliasearch } from 'algoliasearch/lite';
-import { InstantSearch, SearchBox, Hits, Highlight, Configure, useInstantSearch } from 'react-instantsearch';
+import { 
+  getAllBlogs, 
+  getAllLeadershipMembers, 
+  getNotices, 
+  getMagazines, 
+  getResources, 
+  getFaqs, 
+  getUpcomingEvents, 
+  getArchivedEvents 
+} from '../lib/db';
+import Link from 'next/link';
 
-const appId = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID || '';
-const apiKey = process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY || '';
-
-const searchClient = appId && apiKey ? algoliasearch(appId, apiKey) : null;
-
-const indexName = process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME || 'content';
-
-// Custom wrapper to handle empty queries and loading states
-function EmptyQueryBoundary({ children, fallback }: { children: React.ReactNode, fallback?: React.ReactNode }) {
-  const { indexUiState } = useInstantSearch();
-  if (!indexUiState.query) {
-    return (
-      <div className="py-12 text-center text-primary-light/50 dark:text-primary/50">
-        {fallback || "Start typing to search..."}
-      </div>
-    );
-  }
-  return <>{children}</>;
-}
-
-function Hit({ hit }: any) {
-  return (
-    <div className="p-4 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors cursor-pointer group">
-      <h3 className="font-bold text-lg mb-1 group-hover:text-info-light transition-colors">
-        <Highlight attribute="title" hit={hit} classNames={{ highlighted: 'bg-yellow-200/50 dark:bg-yellow-500/20 text-inherit' }} />
-      </h3>
-      <p className="text-sm text-primary-light/70 dark:text-primary/70 line-clamp-2">
-        <Highlight attribute="description" hit={hit} classNames={{ highlighted: 'bg-yellow-200/50 dark:bg-yellow-500/20 text-inherit' }} />
-      </p>
-    </div>
-  );
+interface SearchItem {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  link: string;
 }
 
 export function SearchModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const [query, setQuery] = useState('');
+  const [items, setItems] = useState<SearchItem[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchData = async () => {
+    if (items.length > 0) return; // already fetched
+    setLoading(true);
+    try {
+      const [
+        blogs,
+        members,
+        notices,
+        magazines,
+        resources,
+        faqs,
+        upcomingEvents,
+        archivedEvents
+      ] = await Promise.all([
+        getAllBlogs(),
+        getAllLeadershipMembers(),
+        getNotices(),
+        getMagazines(),
+        getResources(),
+        getFaqs(),
+        getUpcomingEvents(100),
+        getArchivedEvents(100)
+      ]);
+
+      const formattedItems: SearchItem[] = [
+        ...blogs.map((b: any) => ({
+          id: b.id,
+          title: b.title || 'Untitled Blog',
+          description: b.description || b.content || '',
+          category: 'Blog',
+          link: `/blog/${b.id}`
+        })),
+        ...members.map((m: any) => ({
+          id: m.id,
+          title: m.name || 'Unknown Member',
+          description: m.designation || m.bio || '',
+          category: 'Leadership',
+          link: `/leadership`
+        })),
+        ...notices.map((n: any) => ({
+          id: n.id,
+          title: n.title || 'Untitled Notice',
+          description: n.description || '',
+          category: 'Notice',
+          link: `/notices`
+        })),
+        ...magazines.map((m: any) => ({
+          id: m.id,
+          title: m.title || 'Untitled Magazine',
+          description: m.description || '',
+          category: 'Magazine',
+          link: `/magazine`
+        })),
+        ...resources.map((r: any) => ({
+          id: r.id,
+          title: r.title || 'Untitled Resource',
+          description: r.description || '',
+          category: 'Resource',
+          link: `/resources`
+        })),
+        ...faqs.map((f: any) => ({
+          id: f.id,
+          title: f.question || f.title || 'FAQ',
+          description: f.answer || f.description || '',
+          category: 'FAQ',
+          link: `/`
+        })),
+        ...upcomingEvents.map((e: any) => ({
+          id: e.id,
+          title: e.title || e.name || 'Upcoming Event',
+          description: e.description || '',
+          category: 'Event',
+          link: `/events`
+        })),
+        ...archivedEvents.map((e: any) => ({
+          id: e.id,
+          title: e.title || e.name || 'Archived Event',
+          description: e.description || '',
+          category: 'Event',
+          link: `/events`
+        }))
+      ];
+      setItems(formattedItems);
+    } catch (error) {
+      console.error("Error fetching search data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Prevent scrolling when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      setTimeout(() => {
+        fetchData();
+      }, 0);
     } else {
       document.body.style.overflow = 'unset';
+      setTimeout(() => setQuery(''), 0);
     }
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, items.length]); // Added items.length for fetchData check
 
-  const hasKeys = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID && process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY;
+
+  const filteredItems = useMemo(() => {
+    if (!query.trim()) return [];
+    const lowerQuery = query.toLowerCase();
+    return items.filter(item => 
+      item.title.toLowerCase().includes(lowerQuery) || 
+      item.description.toLowerCase().includes(lowerQuery)
+    ).slice(0, 15); // limit hits
+  }, [query, items]);
 
   return (
     <AnimatePresence>
@@ -72,69 +163,72 @@ export function SearchModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
             transition={{ type: "spring", bounce: 0, duration: 0.3 }}
             className="relative w-full max-w-2xl bg-white dark:bg-[#141923] rounded-3xl shadow-2xl border border-black/10 dark:border-white/10 overflow-hidden flex flex-col max-h-[80vh]"
           >
-            {hasKeys && searchClient ? (
-              <InstantSearch searchClient={searchClient} indexName={indexName}>
-                <Configure hitsPerPage={5} />
-                <div className="p-4 border-b border-black/10 dark:border-white/10 flex items-center gap-3">
-                  <Search className="w-5 h-5 text-primary-light/50 dark:text-primary/50" />
-                  <SearchBox 
-                    placeholder="Search blogs, events, leaders..."
-                    classNames={{
-                      root: 'flex-1',
-                      form: 'relative flex items-center',
-                      input: 'w-full bg-transparent border-none outline-none text-lg placeholder:text-primary-light/40 dark:placeholder:text-primary/40',
-                      submit: 'hidden',
-                      reset: 'hidden',
-                      loadingIndicator: 'hidden'
-                    }}
-                    autoFocus
-                  />
-                  <button 
-                    onClick={onClose}
-                    className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+            <div className="p-4 border-b border-black/10 dark:border-white/10 flex items-center gap-3">
+              <Search className="w-5 h-5 text-primary-light/50 dark:text-primary/50" />
+              <input 
+                type="text"
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="Search blogs, events, leaders..."
+                className="w-full bg-transparent border-none outline-none text-lg placeholder:text-primary-light/40 dark:placeholder:text-primary/40 flex-1"
+                autoFocus
+              />
+              <button 
+                onClick={onClose}
+                className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="overflow-y-auto flex-1 p-4">
+              {!query.trim() ? (
+                <div className="py-12 text-center text-primary-light/50 dark:text-primary/50">
+                  Start typing to search...
                 </div>
-                
-                <div className="overflow-y-auto flex-1 p-4">
-                  <EmptyQueryBoundary>
-                    <Hits 
-                      hitComponent={Hit} 
-                      classNames={{
-                        root: 'h-full',
-                        list: 'flex flex-col gap-3',
-                        item: 'list-none'
-                      }}
-                    />
-                  </EmptyQueryBoundary>
+              ) : loading ? (
+                <div className="py-12 flex justify-center text-primary-light/50 dark:text-primary/50">
+                  <Loader2 className="w-6 h-6 text-primary-light/50 dark:text-primary/50 animate-spin" />
                 </div>
-                
-                <div className="p-3 border-t border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 flex items-center justify-between text-xs text-primary-light/60 dark:text-primary/60">
-                  <div className="flex items-center gap-1">
-                    <span>Search by</span>
-                    <span className="font-bold text-[#5468ff]">Algolia</span>
-                  </div>
-                  <span>esc to close</span>
+              ) : filteredItems.length > 0 ? (
+                <div className="flex flex-col gap-3">
+                  {filteredItems.map(hit => (
+                    <Link 
+                      href={hit.link}
+                      key={`${hit.category}-${hit.id}`}
+                      onClick={onClose}
+                      className="p-4 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors block group"
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/10 text-primary-light/70 dark:text-primary/70">
+                          {hit.category}
+                        </span>
+                        <h3 className="font-bold text-lg group-hover:text-info-light transition-colors line-clamp-1">
+                          {hit.title}
+                        </h3>
+                      </div>
+                      {hit.description && (
+                        <p className="text-sm text-primary-light/70 dark:text-primary/70 line-clamp-2 mt-1">
+                          {hit.description}
+                        </p>
+                      )}
+                    </Link>
+                  ))}
                 </div>
-              </InstantSearch>
-            ) : (
-              <div className="p-8 text-center flex flex-col items-center justify-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-500 mb-2">
-                  <Search className="w-8 h-8" />
+              ) : (
+                <div className="py-12 text-center text-primary-light/50 dark:text-primary/50">
+                  No results found for &quot;{query}&quot;
                 </div>
-                <h3 className="text-xl font-bold">Search Unavailable</h3>
-                <p className="text-primary-light/70 dark:text-primary/70 max-w-md">
-                  Algolia search keys are missing. Please add NEXT_PUBLIC_ALGOLIA_APP_ID and NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY to your environment variables.
-                </p>
-                <button 
-                  onClick={onClose}
-                  className="mt-4 px-6 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full font-medium"
-                >
-                  Close
-                </button>
+              )}
+            </div>
+            
+            <div className="p-3 border-t border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 flex items-center justify-between text-xs text-primary-light/60 dark:text-primary/60">
+              <div className="flex items-center gap-1">
+                <span>Search by</span>
+                <span className="font-bold">Firestore</span>
               </div>
-            )}
+              <span>esc to close</span>
+            </div>
           </motion.div>
         </div>
       )}

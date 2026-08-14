@@ -93,7 +93,7 @@ export default function ContactPage() {
               </div>
               <h3 className="text-3xl font-bold mb-4">Redirecting to Gmail...</h3>
               <p className="text-primary-light/70 dark:text-primary/70 max-w-md mx-auto mb-6">
-                We're opening your Gmail to send the message. If a popup blocker prevented it from opening, you can click the button below.
+                We&apos;re opening your Gmail to send the message. If a popup blocker prevented it from opening, you can click the button below.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 items-center">
                 <button 
