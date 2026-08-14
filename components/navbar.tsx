@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X, ChevronDown, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { SearchModal } from '@/components/search-modal';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -63,6 +64,7 @@ const navLinks = [
 export function Navbar() {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [searchOpen, setSearchOpen] = React.useState(false);
   const pathname = usePathname();
 
   React.useEffect(() => {
@@ -71,6 +73,18 @@ export function Navbar() {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Keyboard shortcut (Cmd/Ctrl + K) to open search
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   return (
@@ -168,7 +182,10 @@ export function Navbar() {
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <button className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+          <button 
+            onClick={() => setSearchOpen(true)}
+            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+          >
             <Search className="w-5 h-5" />
           </button>
           <button 
@@ -179,6 +196,9 @@ export function Navbar() {
           </button>
         </div>
       </div>
+
+      {/* Search Modal */}
+      <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
 
       {/* Mobile Nav */}
       <AnimatePresence>
