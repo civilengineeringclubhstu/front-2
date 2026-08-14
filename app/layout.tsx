@@ -24,7 +24,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: 'Club Website Platform',
+  title: 'Civil Engineering Club',
   description: 'We grow dreams not houses',
 };
 

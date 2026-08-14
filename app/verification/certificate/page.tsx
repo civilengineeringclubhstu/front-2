@@ -28,11 +28,12 @@ function CertificateVerificationInner() {
   // QR scan করে এলে ?id=CERT-2026-0001 থাকবে -> auto verify
   useEffect(() => {
     const idFromUrl = searchParams.get('id');
-    if (idFromUrl) {
+    if (idFromUrl && !query && status === 'idle') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setQuery(idFromUrl);
       verify(idFromUrl);
     }
-  }, [searchParams, verify]);
+  }, [searchParams, verify, query, status]);
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -10,7 +10,7 @@ export default function ConstitutionPage() {
       <div className="glass rounded-[36px] p-8 md:p-12 prose dark:prose-invert max-w-none prose-headings:font-bold prose-a:text-info-light">
         <h2>Article I: Name and Purpose</h2>
         <p>
-          <strong>Section 1.</strong> The name of this organization shall be Club Platform.
+          <strong>Section 1.</strong> The name of this organization shall be Civil Engineering Club.
         </p>
         <p>
           <strong>Section 2.</strong> The purpose of this organization is to foster an environment where ideas flourish, to provide resources and community for aspiring leaders, and to bridge the gap between academic learning and practical application.

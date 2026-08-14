@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X, ChevronDown, Search } from 'lucide-react';
@@ -98,14 +99,20 @@ export function Navbar() {
       )}
     >
       <div className="container mx-auto px-6 max-w-7xl flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 group">
+        <Link href="/" className="flex items-center gap-3 group">
           <motion.div 
-            whileHover={{ rotate: 12, scale: 1.1 }}
-            className="w-10 h-10 rounded-xl bg-gradient-to-tr from-info-light to-blue-400 flex items-center justify-center text-white font-bold text-xl shadow-lg"
+            whileHover={{ rotate: 5, scale: 1.05 }}
+            className="w-12 h-12 flex items-center justify-center relative rounded-xl overflow-hidden"
           >
-            C
+            <Image 
+              src="/logo.png" 
+              alt="Civil Engineering Club Logo" 
+              fill
+              className="object-contain"
+              referrerPolicy="no-referrer"
+            />
           </motion.div>
-          <span className="font-bold text-xl tracking-tight hidden sm:block">Club Platform</span>
+          <span className="font-bold text-xl tracking-tight hidden sm:block">Civil Engineering Club</span>
         </Link>
 
         {/* Desktop Nav */}

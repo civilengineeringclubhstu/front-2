@@ -20,7 +20,7 @@ export default function ContactPage() {
     
     // Construct Google Mail URL
     const bodyText = `Name: ${formData.firstName} ${formData.lastName}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`;
-    const mailToLink = `https://mail.google.com/mail/?view=cm&fs=1&to=contact@clubplatform.edu&su=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(bodyText)}`;
+    const mailToLink = `https://mail.google.com/mail/?view=cm&fs=1&to=contact@civilengineeringclub.edu&su=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(bodyText)}`;
     
     // Open Gmail in a new tab
     window.open(mailToLink, '_blank');
@@ -63,7 +63,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-secondary-light uppercase tracking-wide">Email</p>
-                  <p className="font-semibold">contact@clubplatform.edu</p>
+                  <p className="font-semibold">contact@civilengineeringclub.edu</p>
                 </div>
               </div>
               
@@ -99,7 +99,7 @@ export default function ContactPage() {
                 <button 
                   onClick={() => {
                     const bodyText = `Name: ${formData.firstName} ${formData.lastName}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`;
-                    const mailToLink = `https://mail.google.com/mail/?view=cm&fs=1&to=contact@clubplatform.edu&su=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(bodyText)}`;
+                    const mailToLink = `https://mail.google.com/mail/?view=cm&fs=1&to=contact@civilengineeringclub.edu&su=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(bodyText)}`;
                     window.open(mailToLink, '_blank');
                   }}
                   className="btn-primary"

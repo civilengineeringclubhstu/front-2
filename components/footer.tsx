@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Facebook, Instagram, Linkedin, Youtube, Mail, MapPin, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -10,11 +11,17 @@ export function Footer() {
       <div className="container mx-auto px-6 max-w-7xl relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           <div className="flex flex-col gap-6">
-            <div className="flex items-center gap-2 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-info-light to-blue-400 flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                C
+            <div className="flex items-center gap-3 group">
+              <div className="w-12 h-12 flex items-center justify-center relative rounded-xl overflow-hidden">
+                <Image 
+                  src="/logo.png" 
+                  alt="Civil Engineering Club Logo" 
+                  fill
+                  className="object-contain"
+                  referrerPolicy="no-referrer"
+                />
               </div>
-              <span className="font-bold text-xl tracking-tight">Club Platform</span>
+              <span className="font-bold text-xl tracking-tight">Civil Engineering Club</span>
             </div>
             <p className="text-primary-light/70 dark:text-primary/70 max-w-xs">
               We grow dreams not houses. Empowering the next generation of leaders through community, resources, and action.
@@ -61,7 +68,7 @@ export function Footer() {
             </div>
             <div className="flex items-center gap-3 text-primary-light/70 dark:text-primary/70 mt-2">
               <Mail className="w-5 h-5 shrink-0 text-info-light" />
-              <p>contact@clubplatform.edu</p>
+              <p>contact@civilengineeringclub.edu</p>
             </div>
             <motion.button 
               whileHover={{ scale: 1.02 }}
@@ -75,7 +82,7 @@ export function Footer() {
         </div>
 
         <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-black/5 dark:border-white/10 gap-4 text-sm text-primary-light/60 dark:text-primary/60">
-          <p>© {new Date().getFullYear()} Club Platform. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Civil Engineering Club. All rights reserved.</p>
           <div className="flex gap-6">
             <Link href="#" className="hover:text-info-light transition-colors">Privacy Policy</Link>
             <Link href="#" className="hover:text-info-light transition-colors">Terms of Service</Link>
