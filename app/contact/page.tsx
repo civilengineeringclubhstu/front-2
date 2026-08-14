@@ -53,7 +53,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-secondary-light uppercase tracking-wide">Phone</p>
-                  <p className="font-semibold">+1 (555) 123-4567</p>
+                  <p className="font-semibold">+88 XXXX </p>
                 </div>
               </div>
               
@@ -73,7 +73,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-secondary-light uppercase tracking-wide">Location</p>
-                  <p className="font-semibold">University Campus, Block 4</p>
+                  <p className="font-semibold">Dr. Muhammad Qudrat-I- Khuda Academic building,Level 2</p>
                 </div>
               </div>
             </div>

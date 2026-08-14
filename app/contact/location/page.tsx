@@ -20,9 +20,9 @@ export default function LocationPage() {
           </div>
           <h3 className="font-bold text-xl">Address</h3>
           <p className="text-primary-light/70 dark:text-primary/70">
-            University Campus, Academic Block 4<br />
-            Room 402, 4th Floor<br />
-            City, Country 12345
+            Dr. Muhammad Qudrat-I- Khuda Academic building<br />
+            2th Floor<br />
+            Dinajpur-5200, Bangladesh 
           </p>
         </motion.div>
         
@@ -37,9 +37,9 @@ export default function LocationPage() {
           </div>
           <h3 className="font-bold text-xl">Office Hours</h3>
           <div className="text-primary-light/70 dark:text-primary/70 flex flex-col gap-1">
-            <div className="flex justify-between"><span>Mon - Fri:</span> <span>10:00 AM - 6:00 PM</span></div>
+            <div className="flex justify-between"><span>Sun - Thu:</span> <span>09:00 AM - 4:00 PM</span></div>
             <div className="flex justify-between"><span>Saturday:</span> <span>10:00 AM - 2:00 PM</span></div>
-            <div className="flex justify-between"><span>Sunday:</span> <span>Closed</span></div>
+            <div className="flex justify-between"><span>Friday:</span> <span>Closed</span></div>
           </div>
         </motion.div>
         
@@ -54,7 +54,7 @@ export default function LocationPage() {
           </div>
           <h3 className="font-bold text-xl">Directions</h3>
           <p className="text-primary-light/70 dark:text-primary/70">
-            Enter through the main gate, take the first right towards the science buildings. We are located in the glass building next to the central library.
+            Enter through the main gate, take the first left towards the science buildings. We are located in the 10 stored building.
           </p>
         </motion.div>
       </div>

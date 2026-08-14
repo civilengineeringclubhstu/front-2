@@ -64,7 +64,7 @@ export function Footer() {
             <h4 className="font-bold text-lg mb-2">Contact Info</h4>
             <div className="flex items-start gap-3 text-primary-light/70 dark:text-primary/70">
               <MapPin className="w-5 h-5 shrink-0 mt-1 text-info-light" />
-              <p>University Campus, Academic Block 4<br />City, Country</p>
+              <p>Dr. Muhammad Qudrat-I- Khuda Academic building, Level 2 <br />Dinajpur, Bangladesh</p>
             </div>
             <div className="flex items-center gap-3 text-primary-light/70 dark:text-primary/70 mt-2">
               <Mail className="w-5 h-5 shrink-0 text-info-light" />
