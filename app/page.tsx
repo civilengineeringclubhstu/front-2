@@ -128,7 +128,7 @@ export default function Home() {
               <div className="absolute inset-0 bg-gradient-to-tr from-info-light/20 to-transparent rounded-[40px] transform rotate-3" />
               <div className="absolute inset-0 glass-card overflow-hidden">
                 <Image 
-                  src="https://picsum.photos/seed/hero/1200/1600"
+                  src="/heroimg2.png"
                   alt="Club activities"
                   fill
                   className="object-cover hover:scale-105 transition-transform duration-700"
@@ -184,7 +184,7 @@ export default function Home() {
             className="relative h-[400px] lg:h-[600px] w-full rounded-[36px] overflow-hidden group shadow-2xl"
           >
             <Image
-              src="https://picsum.photos/seed/about/1000/1200"
+              src="/home2.png"
               alt="About our club"
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-700"
@@ -193,7 +193,7 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             <div className="absolute bottom-0 left-0 p-8">
               <div className="glass px-6 py-4 rounded-2xl border-white/20 backdrop-blur-md hover:bg-white/70 transition-colors">
-                <p className="text-primary-light dark:text-primary font-medium">&quot;Building leaders since 1995&quot;</p>
+                <p className="text-primary-light dark:text-primary font-medium">&quot;Building leaders since 2015&quot;</p>
               </div>
             </div>
           </motion.div>
